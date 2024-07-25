@@ -2,18 +2,37 @@ import sys
 import os
 import math
 from typing import List
-# Add the parent directory to the Python path
+
+# Agrega el directorio principal al path de Python
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from models.Column import Column, ColumnType
 
 class Table:
   columns: List[Column]
-  clase: int  # índice de la clase de las columnas
+  clase: int  # Índice de la clase de las columnas
   total_amount_instances: int
 
-  def __init__(self, columns):
+  """
+  Constructor de la clase Table.
+  
+  Parámetros:
+  columns (List[Column]): Lista de columnas que forman la tabla.
+  """
+  def __init__(self, columns: List[Column]):
     self.columns = columns
 
+  """
+  Método para establecer la columna de clase y la cantidad total de instancias.
+  
+  Parámetros:
+  column_index (int): Índice de la columna que se establecerá como clase.
+  total_amount_instances (int): Cantidad total de instancias.
+  
+  Excepciones:
+  ValueError: Si el valor de total_amount_instances no es válido.
+  IndexError: Si el índice de la columna está fuera de rango.
+  TypeError: Si la columna especificada no es de tipo binario.
+  """
   def set_clase(self, column_index: int, total_amount_instances: int):
     if total_amount_instances <= 0:
       raise ValueError("Valor no válido para instancias.")
@@ -27,9 +46,24 @@ class Table:
     else:
       raise TypeError(f"El tipo de columna {self.columns[column_index].name} no es BINARY. No se puede establecer como clase.")
 
+  """
+  Método para obtener el número total de instancias en la tabla.
+  
+  Retorna:
+  int: Número total de instancias.
+  """
   def total_instances(self) -> int:
     return len(self.columns[0].instances)
 
+  """
+  Método para obtener las instancias posibles de una columna específica.
+  
+  Parámetros:
+  column_index (int): Índice de la columna.
+  
+  Retorna:
+  list[int] | list[str]: Lista de instancias posibles de la columna.
+  """
   def get_possible_instances(self, column_index: int) -> list[int] | list[str]:
     lst = []
     for i in self.columns[column_index].instances:
@@ -38,6 +72,15 @@ class Table:
     lst.sort()
     return lst
 
+  """
+  Método para obtener las particiones de una columna específica.
+  
+  Parámetros:
+  column_index (int): Índice de la columna.
+  
+  Retorna:
+  list[list[int]]: Lista de particiones de la columna.
+  """
   def get_partitions(self, column_index: int) -> list[list[int]]:
     lst = self.get_possible_instances(column_index)
     class_lst = self.get_possible_instances(self.clase)
@@ -57,6 +100,15 @@ class Table:
     
     return partitions
 
+  """
+  Método para calcular la entropía de una lista de particiones.
+  
+  Parámetros:
+  partitions (list[int] | list[str]): Lista de particiones.
+  
+  Retorna:
+  float: Valor de la entropía calculada.
+  """
   def calculate_entropy(self, partitions: list[int] | list[str]) -> float:
     res = 0.0
     total_instances = sum(partitions)
@@ -67,6 +119,15 @@ class Table:
           res += -div * math.log(div, 2)
     return res
 
+  """
+  Método para calcular la ganancia de información de una columna específica.
+  
+  Parámetros:
+  column_index (int): Índice de la columna.
+  
+  Retorna:
+  dict: Diccionario con la entropía general, suma de particiones y ganancia.
+  """
   def calculate_return(self, column_index: int) -> dict:
     class_partitions = self.get_partitions(self.clase)
     class_entropy = self.calculate_entropy(class_partitions)
@@ -84,6 +145,12 @@ class Table:
       "Ganancia": f"{res:.4f}"
     }
 
+  """
+  Método para obtener todas las ganancias de información de las columnas.
+  
+  Retorna:
+  list: Lista de diccionarios con los resultados de las ganancias de información.
+  """
   def get_all_calculations(self) -> list:
     results = []
     for i in range(len(self.columns)):
@@ -91,10 +158,9 @@ class Table:
         result_dict = self.calculate_return(i)
         results.append(result_dict)
 
-    # sorted_results = sorted(results, key=lambda x: float(x["Ganancia"]), reverse=True)
     return results
 
-
+# Ejemplo de uso
 if __name__ == "__main__":
   tenis_columns: List[Column] = [
     Column(
@@ -120,7 +186,7 @@ if __name__ == "__main__":
   ]
 
   tenis_table = Table(tenis_columns)
-  tenis_table.set_clase(3, total_amount_instances=14)  # Set class with total instances
+  tenis_table.set_clase(3, total_amount_instances=14)  # Establecer la clase con el total de instancias
 
   all_calculations = tenis_table.get_all_calculations()
   for calculation in all_calculations:

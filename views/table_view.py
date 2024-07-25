@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QColor, QPalette, QCursor
 from PyQt5.QtCore import Qt
 
+# Agrega los directorios necesarios al path de Python
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from models.Column import Column, ColumnType
@@ -17,6 +18,11 @@ from helpers.import_excel import import_data
 from views.results_window import ResultsWindow
 
 class TableView(QMainWindow):
+  """
+  Clase para la vista de la tabla que hereda de QMainWindow.
+  Esta clase muestra los datos de la tabla y proporciona controles para manipularlos.
+  """
+  
   def __init__(self, tabla):
     super().__init__()
     self.setWindowTitle("Vista de Tabla")
@@ -39,6 +45,9 @@ class TableView(QMainWindow):
     self.create_table()
 
   def create_controls(self):
+    """
+    Crear los controles para manipular la tabla.
+    """
     control_widget = QWidget()
     control_layout = QVBoxLayout(control_widget)
     control_layout.setContentsMargins(0, 0, 0, 0)
@@ -52,7 +61,7 @@ class TableView(QMainWindow):
     class_label = QLabel("Elegir clase")
     self.class_combobox = QComboBox()
     self.class_combobox.addItems([col.name for col in self.tabla.columns if col.type == ColumnType.BINARY])
-    self.class_combobox.setCursor(QCursor(Qt.PointingHandCursor))  # Set cursor to pointer
+    self.class_combobox.setCursor(QCursor(Qt.PointingHandCursor))  # Cambia el cursor a puntero
 
     class_layout.addWidget(class_label)
     class_layout.addWidget(self.class_combobox)
@@ -86,12 +95,12 @@ class TableView(QMainWindow):
     control_frame.layout().setAlignment(Qt.AlignTop)
     self.splitter.addWidget(control_frame)
 
-    # Set the color to sky blue
+    # Establece el color a azul cielo
     palette = self.palette()
     palette.setColor(QPalette.Button, QColor("skyblue"))
     self.setPalette(palette)
 
-    # Apply modern style
+    # Aplicar estilo moderno
     self.setStyleSheet("""
       QPushButton {
         font-size: 12px;
@@ -151,11 +160,14 @@ class TableView(QMainWindow):
       }
     """)
 
-    # Add cursor pointer to buttons
+    # Añadir cursor de puntero a los botones
     for button in [generate_button, clear_button, import_button, result_button]:
         button.setCursor(QCursor(Qt.PointingHandCursor))
 
   def create_table(self):
+    """
+    Crear la tabla para mostrar los datos.
+    """
     if hasattr(self, 'table_frame') and self.table_frame:
       self.splitter.widget(1).setParent(None)
       self.table_frame.deleteLater()
@@ -169,7 +181,7 @@ class TableView(QMainWindow):
     for col_index, col in enumerate(self.tabla.columns):
       for row_index, instance in enumerate(col.instances):
         combobox = QComboBox()
-        combobox.setCursor(QCursor(Qt.PointingHandCursor))  # Set cursor to pointer
+        combobox.setCursor(QCursor(Qt.PointingHandCursor))  # Cambia el cursor a puntero
         if col.type == ColumnType.BINARY:
           combobox.addItems(["0", "1"])
         elif col.type == ColumnType.NOMINAL:
@@ -178,7 +190,7 @@ class TableView(QMainWindow):
           x1_display = f"{col.x1:.1f}" if isinstance(col.x1, float) else str(col.x1)
           x2_display = f"{col.x2:.1f}" if isinstance(col.x2, float) else str(col.x2)
           combobox.addItems([f"< {x1_display}", f"{x1_display} - {x2_display}", f"> {x2_display}"])
-          # Determine the correct index based on the instance value
+          # Determina el índice correcto según el valor de la instancia
           if instance.startswith("<"):
             index = 0
           elif instance.startswith(">"):
@@ -206,6 +218,13 @@ class TableView(QMainWindow):
     self.splitter.addWidget(self.table_frame)
 
   def update_table_data(self, row, col):
+    """
+    Actualizar los datos de la tabla cuando cambia un valor en el combobox.
+
+    Parámetros:
+    row (int): Índice de la fila.
+    col (int): Índice de la columna.
+    """
     combobox = self.table.cellWidget(row, col)
     new_value = combobox.currentText()
     if self.tabla.columns[col].type == ColumnType.NUMERIC:
@@ -214,6 +233,9 @@ class TableView(QMainWindow):
       self.tabla.columns[col].instances[row] = int(new_value)
 
   def clear_table(self):
+    """
+    Limpiar los datos de la tabla, restableciendo los comboboxes a su valor inicial.
+    """
     for col_index in range(self.table.columnCount()):
       for row_index in range(self.table.rowCount()):
         combobox = self.table.cellWidget(row_index, col_index)
@@ -221,6 +243,9 @@ class TableView(QMainWindow):
           combobox.setCurrentIndex(0)
 
   def generate_random_instances(self):
+    """
+    Generar instancias aleatorias para cada celda en la tabla.
+    """
     for col_index in range(self.table.columnCount()):
       for row_index in range(self.table.rowCount()):
         combobox = self.table.cellWidget(row_index, col_index)
@@ -229,18 +254,24 @@ class TableView(QMainWindow):
           combobox.setCurrentIndex(random_index)
 
   def import_data(self):
+    """
+    Importar datos desde un archivo y actualizar la tabla con los nuevos datos.
+    """
     file_path, _ = QFileDialog.getOpenFileName(self, "Importar Datos", "", "Excel Files (*.xlsx *.xls);;CSV Files (*.csv)")
     if file_path:
       try:
         columns = import_data(file_path)
         self.tabla.columns = columns
-        self.create_table()  # Re-create the table with new data
+        self.create_table()  # Recrear la tabla con los nuevos datos
       except Exception as e:
         QMessageBox.critical(self, "Error", f"Error al importar datos: {str(e)}")
 
   def get_results(self):
+    """
+    Obtener los resultados del análisis y mostrar la ventana de resultados.
+    """
     try:
-      # Update all data in the table before calculating results
+      # Actualizar todos los datos en la tabla antes de calcular los resultados
       for row in range(self.table.rowCount()):
         for col in range(self.table.columnCount()):
           self.update_table_data(row, col)
@@ -268,7 +299,7 @@ class TableView(QMainWindow):
 if __name__ == "__main__":
   from PyQt5.QtWidgets import QApplication
 
-  # Example data for testing
+  # Datos de ejemplo para pruebas
   tenis_columns = [
     Column("Temperatura", ["> 32", "> 32", "> 32", "25 - 32", "< 25", "< 25", "< 25", "25 - 32", "< 25", "25 - 32", "25 - 32", "25 - 32", "> 32", "25 - 32"], ColumnType.NUMERIC),
     Column("Humedad", [3, 3, 3, 3, 2, 2, 2, 3, 2, 2, 2, 3, 2, 3], ColumnType.NOMINAL),
@@ -277,7 +308,7 @@ if __name__ == "__main__":
   ]
 
   tenis_table = Table(tenis_columns)
-  tenis_table.set_clase(3, total_amount_instances=14)  # Set class with total instances
+  tenis_table.set_clase(3, total_amount_instances=14)  # Establecer la clase con el total de instancias
 
   app = QApplication(sys.argv)
   window = TableView(tenis_table)

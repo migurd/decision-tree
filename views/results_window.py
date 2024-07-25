@@ -4,6 +4,18 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from models.Column import Column, ColumnType
 
 def infer_column_type(values):
+  """
+  Inferir el tipo de columna a partir de los valores.
+
+  Parámetros:
+  values (list): Lista de valores de la columna.
+
+  Retorna:
+  ColumnType: Tipo de la columna inferido.
+
+  Excepciones:
+  ValueError: Si no se puede inferir el tipo de columna.
+  """
   if all(isinstance(val, int) and val in {0, 1} for val in values):
     return ColumnType.BINARY
   elif all(isinstance(val, int) for val in values):
@@ -14,6 +26,15 @@ def infer_column_type(values):
     raise ValueError("Cannot infer column type")
 
 def import_data(file_path):
+  """
+  Importar datos desde un archivo Excel.
+
+  Parámetros:
+  file_path (str): Ruta del archivo Excel.
+
+  Retorna:
+  list: Lista de objetos Column.
+  """
   data = pd.read_excel(file_path)
 
   columns = []
@@ -27,6 +48,15 @@ def import_data(file_path):
   return columns
 
 def open_import_data(parent):
+  """
+  Abrir el cuadro de diálogo para importar datos y procesar el archivo seleccionado.
+
+  Parámetros:
+  parent (QWidget): Widget padre para el cuadro de diálogo.
+
+  Retorna:
+  list: Lista de objetos Column o None si ocurre un error.
+  """
   file_path, _ = QFileDialog.getOpenFileName(parent, "Importar Datos", "", "Excel Files (*.xlsx *.xls)", "Excel Files (*.xlsx *.xls)")
   if file_path:
     try:
@@ -42,6 +72,11 @@ from PyQt5.QtCore import Qt
 from models.Column import ColumnType
 
 class ResultsWindow(QMainWindow):
+  """
+  Clase para la ventana de resultados que hereda de QMainWindow.
+  Esta clase muestra los resultados del análisis en una tabla y otros elementos visuales.
+  """
+  
   def __init__(self, column_names, table_data, general_entropy, gains, column_types):
     super().__init__()
     self.setWindowTitle("Resultados")
@@ -70,7 +105,7 @@ class ResultsWindow(QMainWindow):
     scroll_area.setWidget(scroll_content)
     self.layout.addWidget(scroll_area)
 
-    # Apply modern style
+    # Aplicar estilo moderno
     self.setStyleSheet("""
       QTableWidget {
         border: none;
@@ -91,6 +126,17 @@ class ResultsWindow(QMainWindow):
     """)
 
   def create_results_view(self, layout, column_names, table_data, general_entropy, gains, column_types):
+    """
+    Crear la vista de resultados.
+
+    Parámetros:
+    layout (QVBoxLayout): Layout donde se agregan los elementos.
+    column_names (list): Lista de nombres de las columnas.
+    table_data (list): Datos de la tabla.
+    general_entropy (str): Entropía general calculada.
+    gains (dict): Diccionario con las ganancias de cada columna.
+    column_types (list): Lista de tipos de las columnas.
+    """
     table_title_label = QLabel("Valores de tabla")
     table_title_label.setStyleSheet("font-size: 18px; color: #3f51b5;")
     layout.addWidget(table_title_label)
@@ -125,6 +171,15 @@ class ResultsWindow(QMainWindow):
       layout.addWidget(node_label)
 
   def create_table(self, layout, column_names, table_data, column_types):
+    """
+    Crear una tabla para mostrar los datos.
+
+    Parámetros:
+    layout (QVBoxLayout): Layout donde se agrega la tabla.
+    column_names (list): Lista de nombres de las columnas.
+    table_data (list): Datos de la tabla.
+    column_types (list): Lista de tipos de las columnas.
+    """
     table_widget = QTableWidget()
     table_widget.setRowCount(len(table_data))
     table_widget.setColumnCount(len(table_data[0]))

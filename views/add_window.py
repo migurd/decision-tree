@@ -9,6 +9,10 @@ from models.Table import Table
 from views.table_view import TableView
 
 class AddWindow(QMainWindow):
+  """
+  Clase para la ventana de agregar datos.
+  """
+
   def __init__(self):
     super().__init__()
     self.setWindowTitle("Agregar Datos")
@@ -21,10 +25,12 @@ class AddWindow(QMainWindow):
     self.layout.setContentsMargins(20, 20, 20, 20)
     self.layout.setSpacing(20)
 
+    # Etiqueta del slider
     self.slider_label = QLabel("Cantidad ítems: 3")
     self.slider_label.setStyleSheet("font-size: 16px; color: #3f51b5;")
     self.layout.addWidget(self.slider_label)
     
+    # Slider para seleccionar la cantidad de ítems
     self.slider = QSlider(Qt.Horizontal)
     self.slider.setMinimum(3)
     self.slider.setMaximum(5)
@@ -33,6 +39,7 @@ class AddWindow(QMainWindow):
     self.slider.valueChanged.connect(self.update_items)
     self.layout.addWidget(self.slider)
     
+    # Área de scroll para los ítems
     self.scroll_area = QScrollArea()
     self.scroll_area_widget = QWidget()
     self.scroll_area.setWidget(self.scroll_area_widget)
@@ -40,21 +47,25 @@ class AddWindow(QMainWindow):
     self.scroll_layout = QVBoxLayout(self.scroll_area_widget)
     self.scroll_layout.setSpacing(20)
     
+    # Lista de widgets de ítems
     self.item_widgets = []
     for i in range(3):
       self.add_item(i + 1)
     
     self.layout.addWidget(self.scroll_area)
     
+    # Etiqueta para la cantidad de instancias
     self.instances_label = QLabel("Cantidad instancias")
     self.instances_label.setStyleSheet("font-size: 16px; color: #3f51b5;")
     self.layout.addWidget(self.instances_label)
     
+    # Input para la cantidad de instancias
     self.instances_input = QLineEdit()
     self.instances_input.setPlaceholderText("Insertar cantidad ...")
     self.instances_input.setStyleSheet("padding: 10px; font-size: 16px; border: 2px solid #3f51b5; border-radius: 5px;")
     self.layout.addWidget(self.instances_input)
     
+    # Botón para cargar datos
     self.submit_button = QPushButton("CARGAR DATOS")
     self.submit_button.setStyleSheet("""
       QPushButton {
@@ -77,25 +88,35 @@ class AddWindow(QMainWindow):
     self.layout.addWidget(self.submit_button)
   
   def add_item(self, item_number):
+    """
+    Agrega un ítem a la lista de ítems.
+    
+    Parámetros:
+    item_number (int): Número del ítem a agregar.
+    """
     item_widget = QWidget()
     item_layout = QVBoxLayout(item_widget)
     item_layout.setSpacing(10)
     
+    # Etiqueta del ítem
     item_label = QLabel(f"Item {item_number}")
     item_label.setStyleSheet("font-size: 16px; color: #3f51b5;")
     item_layout.addWidget(item_label)
     
+    # Input para el nombre del ítem
     name_input = QLineEdit()
     name_input.setPlaceholderText("Insertar nombre ...")
     name_input.setStyleSheet("padding: 10px; font-size: 16px; border: 2px solid #3f51b5; border-radius: 5px;")
     item_layout.addWidget(name_input)
     
+    # Combobox para seleccionar el tipo de ítem
     combobox = QComboBox()
     combobox.addItems(["Binario", "Nominal", "Numérico"])
     combobox.currentIndexChanged.connect(lambda _, cb=combobox, iw=item_widget: self.toggle_range_inputs(cb, iw))
     combobox.setStyleSheet("padding: 10px; font-size: 16px; border: 2px solid #3f51b5; border-radius: 5px;")
     item_layout.addWidget(combobox)
     
+    # Layout para los inputs de rango
     range_layout = QHBoxLayout()
     range_layout.setSpacing(10)
     
@@ -111,13 +132,16 @@ class AddWindow(QMainWindow):
     
     range_layout_widget = QWidget()
     range_layout_widget.setLayout(range_layout)
-    range_layout_widget.hide()  # Hide initially
+    range_layout_widget.hide()  # Ocultar inicialmente
     item_layout.addWidget(range_layout_widget)
     
     self.scroll_layout.addWidget(item_widget)
     self.item_widgets.append((item_widget, range_layout_widget, name_input, combobox, range_input_1, range_input_2))
   
   def update_items(self):
+    """
+    Actualiza la cantidad de ítems según el valor del slider.
+    """
     item_count = self.slider.value()
     self.slider_label.setText(f"Cantidad ítems: {item_count}")
     current_count = len(self.item_widgets)
@@ -132,6 +156,13 @@ class AddWindow(QMainWindow):
         widget.deleteLater()
   
   def toggle_range_inputs(self, combobox, item_widget):
+    """
+    Muestra u oculta los inputs de rango según el tipo de ítem seleccionado.
+    
+    Parámetros:
+    combobox (QComboBox): Combobox del ítem.
+    item_widget (QWidget): Widget del ítem.
+    """
     for widget, range_widget, name_input, combobox_item, range_input_1, range_input_2 in self.item_widgets:
       if widget == item_widget:
         if combobox.currentText() == "Numérico":
@@ -140,6 +171,12 @@ class AddWindow(QMainWindow):
           range_widget.hide()
 
   def show_error_message(self, message):
+    """
+    Muestra un mensaje de error.
+    
+    Parámetros:
+    message (str): Mensaje de error a mostrar.
+    """
     msg_box = QMessageBox()
     msg_box.setIcon(QMessageBox.Critical)
     msg_box.setText(message)
@@ -147,6 +184,15 @@ class AddWindow(QMainWindow):
     msg_box.exec_()
   
   def validate_float(self, text):
+    """
+    Valida si un texto puede ser convertido a float.
+    
+    Parámetros:
+    text (str): Texto a validar.
+    
+    Retorna:
+    (bool, float): Tupla con un booleano indicando si es válido y el valor flotante.
+    """
     try:
       float_value = float(text)
       return True, round(float_value, 2)
@@ -154,6 +200,9 @@ class AddWindow(QMainWindow):
       return False, None
   
   def create_table_and_open_view(self):
+    """
+    Crea una tabla con los ítems ingresados y abre la vista de la tabla.
+    """
     columns = []
     total_instances_text = self.instances_input.text()
 
