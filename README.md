@@ -1,6 +1,8 @@
 
 # Proyecto No. 3: Árboles de Decisión - METSURO
 
+![Metsuro Logo](https://imgur.com/uXfCilV.png)
+
 ## Descripción Breve
 El objetivo del programa es crear un modelo que prediga el valor de una variable objetivo basado en varias variables de entrada. 
 

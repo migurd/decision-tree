@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (
   QComboBox, QPushButton, QHBoxLayout, QFileDialog, QMessageBox, QGridLayout,
   QSplitter, QFrame, QSizePolicy
 )
-from PyQt5.QtGui import QColor, QPalette, QCursor
+from PyQt5.QtGui import QColor, QPalette, QCursor, QIcon
 from PyQt5.QtCore import Qt
 
 # Agrega los directorios necesarios al path de Python
@@ -27,6 +27,9 @@ class TableView(QMainWindow):
     super().__init__()
     self.setWindowTitle("Vista de Tabla")
     self.setGeometry(100, 100, 1000, 600)
+
+    # Establecer el icono de la aplicación
+    self.setWindowIcon(QIcon('img/IconLogoMetsuro.png'))
 
     self.tabla = tabla
 

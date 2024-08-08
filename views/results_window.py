@@ -1,6 +1,7 @@
 import re
 import pandas as pd
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtGui import QIcon
 from models.Column import Column, ColumnType
 
 def infer_column_type(values):
@@ -104,6 +105,9 @@ class ResultsWindow(QMainWindow):
 
     scroll_area.setWidget(scroll_content)
     self.layout.addWidget(scroll_area)
+
+    # Establecer el icono de la aplicación
+    self.setWindowIcon(QIcon('img/IconLogoMetsuro.png'))
 
     # Aplicar estilo moderno
     self.setStyleSheet("""

@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QSlider, QScrollArea, QComboBox, QLineEdit, QPushButton, QHBoxLayout, QMessageBox
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -24,6 +25,9 @@ class AddWindow(QMainWindow):
     self.layout = QVBoxLayout(self.central_widget)
     self.layout.setContentsMargins(20, 20, 20, 20)
     self.layout.setSpacing(20)
+
+    # Establecer el icono de la aplicación
+    self.setWindowIcon(QIcon('img/IconLogoMetsuro.png'))
 
     # Etiqueta del slider
     self.slider_label = QLabel("Cantidad ítems: 3")
