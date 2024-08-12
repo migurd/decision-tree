@@ -266,6 +266,16 @@ class TableView(QMainWindow):
         columns = import_data(file_path)
         self.tabla.columns = columns
         self.create_table()  # Recrear la tabla con los nuevos datos
+
+        # Actualizar el ComboBox de clases
+        binary_columns = [col.name for col in self.tabla.columns if col.type == ColumnType.BINARY]
+        self.class_combobox.clear()
+
+        if binary_columns:
+          self.class_combobox.addItems(binary_columns)
+        else:
+          raise ValueError("No hay columnas binarias disponibles para seleccionar como clase.")
+
       except Exception as e:
         QMessageBox.critical(self, "Error", f"Error al importar datos: {str(e)}")
 
